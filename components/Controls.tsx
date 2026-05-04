@@ -238,35 +238,86 @@ const Controls: React.FC<ControlsProps> = ({
           </div>
         </section>
 
-        {/* Appearance */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <span className="w-4 h-[2px] bg-primary-500 rounded-full"></span>
             <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Appearance</h3>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
              {[
-               { label: 'Base', key: 'backgroundColor' },
-               { label: 'Type', key: 'textColor' },
-               { label: 'Accent', key: 'accentColor' }
+               { label: 'Base BG', key: 'backgroundColor' },
+               { label: 'Main Text', key: 'textColor' },
+               { label: 'Secondary', key: 'accentColor' },
+               { label: 'Icon Color', key: 'iconColor' }
              ].map((item) => (
                <div key={item.key} className="p-3 bg-slate-800/30 border border-slate-800 rounded-xl flex flex-col items-center gap-2 hover:bg-slate-800/50 transition-all group">
                 <label className="text-[9px] font-bold text-slate-500 uppercase group-hover:text-slate-400 transition-colors tracking-tighter">{item.label}</label>
                 <div className="relative w-8 h-8 lg:w-10 lg:h-10">
                     <input 
                         type="color" 
-                        value={(config as any)[item.key]}
+                        value={(config as any)[item.key] || '#000000'}
                         onChange={(e) => handleChange(item.key as any, e.target.value)}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                     <div 
                       className="w-full h-full rounded-full ring-2 ring-slate-700 ring-offset-2 ring-offset-slate-900 shadow-inner group-hover:ring-slate-500 transition-all active:scale-90"
-                      style={{ backgroundColor: (config as any)[item.key] }}
+                      style={{ backgroundColor: (config as any)[item.key] || '#000000' }}
                     />
                 </div>
                </div>
              ))}
+          </div>
+        </section>
+
+        {/* Layout & Stroke */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 px-1">
+            <span className="w-4 h-[2px] bg-primary-500 rounded-full"></span>
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Layout & Detail</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-slate-400 ml-1">Stroke Width</label>
+                <input 
+                  type="number" 
+                  step="0.5"
+                  min="0"
+                  max="10"
+                  value={config.strokeWidth || 0}
+                  onChange={(e) => handleChange('strokeWidth', parseFloat(e.target.value))}
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-primary-500/50 transition-all font-mono"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-slate-400 ml-1">Item Spacing</label>
+                <input 
+                  type="number" 
+                  min="0"
+                  max="200"
+                  value={config.itemSpacing || 0}
+                  onChange={(e) => handleChange('itemSpacing', parseInt(e.target.value))}
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-primary-500/50 transition-all font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-slate-400 ml-1">Icon Position</label>
+              <div className="grid grid-cols-4 gap-2">
+                {['top', 'bottom', 'left', 'right'].map((pos) => (
+                  <button
+                    key={pos}
+                    onClick={() => handleChange('iconPosition', pos as any)}
+                    className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-tighter transition-all ${config.iconPosition === pos ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' : 'bg-slate-800 text-slate-500 hover:text-slate-300'}`}
+                  >
+                    {pos}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       </div>

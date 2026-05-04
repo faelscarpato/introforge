@@ -22,8 +22,12 @@ const INITIAL_CONFIG: AnimationConfig = {
   letterSpacing: 2,
   easing: 'easeInOut',
   fontFamily: '"Inter", sans-serif',
-  iconId: 'circle',
-  morphIconId: 'star'
+  iconId: 'rocket',
+  morphIconId: 'star',
+  iconColor: '#38bdf8',
+  strokeWidth: 2,
+  iconPosition: 'top',
+  itemSpacing: 20
 };
 
 function App() {

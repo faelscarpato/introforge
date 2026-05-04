@@ -7,13 +7,16 @@ export enum AnimationType {
   Glitch = 'glitch',
   SVG_STROKE = 'svg_stroke',
   ELASTIC_POP = 'elastic_pop',
-  MORPH = 'morph'
+  MORPH = 'morph',
+  TEXT_STROKE = 'text_stroke'
 }
 
 export enum ExportFormat {
   REACT_FRAMER = 'react_framer',
   HTML_CSS = 'html_css'
 }
+
+export type IconPosition = 'top' | 'bottom' | 'left' | 'right';
 
 export interface AnimationConfig {
   text: string;
@@ -30,6 +33,10 @@ export interface AnimationConfig {
   fontFamily?: string;
   iconId?: string;
   morphIconId?: string;
+  iconColor?: string;
+  strokeWidth?: number;
+  iconPosition?: IconPosition;
+  itemSpacing?: number;
 }
 
 export interface GeneratedCode {

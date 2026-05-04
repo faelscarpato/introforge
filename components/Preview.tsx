@@ -120,26 +120,59 @@ const SvgStrokeText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
         initial={{ 
           strokeDasharray: 1000, 
           strokeDashoffset: 1000, 
-          fillOpacity: 0,
-          stroke: config.textColor,
-          strokeWidth: 2
+          fillOpacity: 0
         }}
         animate={{ 
           strokeDashoffset: 0,
-          fillOpacity: 1,
-          transition: {
-            strokeDashoffset: { duration: config.duration * 1.5, ease: "easeInOut", delay: config.delay },
-            fillOpacity: { duration: 0.8, ease: "easeOut", delay: config.delay + config.duration }
-          }
+          fillOpacity: 1
         }}
-        // We apply style changes directly to the element to allow live-editing without restarting animation
+        transition={{ 
+          duration: config.duration, 
+          delay: config.delay,
+          ease: "easeInOut"
+        }}
         style={{ 
           fontSize: `${config.fontSize}px`, 
           letterSpacing: `${config.letterSpacing}px`,
           fontFamily: config.fontFamily || 'inherit',
           fontWeight: 'bold',
           fill: config.textColor,
-          stroke: config.textColor // Ensure stroke color updates live
+          stroke: config.textColor,
+          strokeWidth: config.strokeWidth || 1
+        }}
+      >
+        {config.text}
+      </motion.text>
+    </svg>
+  );
+};
+
+const TextStrokeAnimation: React.FC<{ config: AnimationConfig }> = ({ config }) => {
+  return (
+    <svg width="100%" height="250px" viewBox="0 0 800 250" className="overflow-visible">
+      <motion.text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        initial={{ fill: "transparent", strokeDashoffset: 1000, strokeDasharray: 1000 }}
+        animate={{ 
+          fill: config.textColor,
+          strokeDashoffset: 0,
+        }}
+        transition={{ 
+          duration: config.duration, 
+          delay: config.delay,
+          ease: "easeInOut",
+          fill: { delay: config.delay + config.duration * 0.8, duration: 0.5 }
+        }}
+        style={{ 
+          fontSize: `${config.fontSize}px`, 
+          letterSpacing: `${config.letterSpacing}px`,
+          fontFamily: config.fontFamily || 'inherit',
+          fontWeight: 'bold',
+          stroke: config.accentColor,
+          strokeWidth: config.strokeWidth || 2
         }}
       >
         {config.text}
@@ -151,48 +184,65 @@ const SvgStrokeText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
 const MorphAnimation: React.FC<{ config: AnimationConfig }> = ({ config }) => {
   const icon = ICONS.find(i => i.id === config.iconId) || ICONS[0];
   const targetIcon = ICONS.find(i => i.id === config.morphIconId) || ICONS[1];
+  
+  const iconSize = config.fontSize * 1.5;
+  const isHorizontal = config.iconPosition === 'left' || config.iconPosition === 'right';
+
+  const iconElement = (
+    <div className="flex items-center justify-center">
+      <svg 
+        width={iconSize} 
+        height={iconSize} 
+        viewBox={icon.viewBox} 
+        className="overflow-visible"
+      >
+        <motion.path
+          d={icon.path}
+          initial={{ d: icon.path, fill: config.iconColor || config.textColor, opacity: 0 }}
+          animate={{ 
+            d: [icon.path, targetIcon.path, icon.path],
+            fill: [config.iconColor || config.textColor, config.accentColor, config.iconColor || config.textColor],
+            opacity: 1
+          }}
+          transition={{
+            duration: config.duration * 2,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+            delay: config.delay
+          }}
+          stroke={config.accentColor}
+          strokeWidth={config.strokeWidth ? config.strokeWidth * 0.5 : 0}
+        />
+      </svg>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="flex items-center justify-center mb-8">
-        <svg 
-          width={config.fontSize * 1.5} 
-          height={config.fontSize * 1.5} 
-          viewBox={icon.viewBox} 
-          className="overflow-visible"
+    <div 
+      className={`flex items-center justify-center ${isHorizontal ? 'flex-row' : 'flex-col'}`}
+      style={{ gap: `${config.itemSpacing || 20}px` }}
+    >
+      {(config.iconPosition === 'top' || config.iconPosition === 'left') && iconElement}
+      
+      <div className="flex flex-col items-center justify-center">
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: config.delay + 0.5, duration: config.duration }}
+          style={{ 
+            fontSize: `${config.fontSize}px`, 
+            letterSpacing: `${config.letterSpacing}px`,
+            fontFamily: config.fontFamily || 'inherit',
+            color: config.textColor
+          }}
+          className="font-bold leading-tight text-center"
         >
-          <motion.path
-            d={icon.path}
-            initial={{ d: icon.path, fill: config.textColor, opacity: 0 }}
-            animate={{ 
-              d: [icon.path, targetIcon.path, icon.path],
-              fill: [config.textColor, config.accentColor, config.textColor],
-              opacity: 1
-            }}
-            transition={{
-              duration: config.duration * 2,
-              repeat: Infinity,
-              repeatType: "reverse",
-              ease: "easeInOut",
-              delay: config.delay
-            }}
-          />
-        </svg>
+          {config.text}
+        </motion.h1>
       </div>
-      <motion.h1
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: config.delay + 0.5, duration: config.duration }}
-        style={{ 
-          fontSize: `${config.fontSize}px`, 
-          letterSpacing: `${config.letterSpacing}px`,
-          fontFamily: config.fontFamily || 'inherit',
-          color: config.textColor
-        }}
-        className="font-bold leading-tight text-center"
-      >
-        {config.text}
-      </motion.h1>
+
+      {(config.iconPosition === 'bottom' || config.iconPosition === 'right') && iconElement}
     </div>
   );
 };
@@ -242,6 +292,8 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
         return <SvgStrokeText config={config} />;
       case AnimationType.MORPH:
         return <MorphAnimation config={config} />;
+      case AnimationType.TEXT_STROKE:
+        return <TextStrokeAnimation config={config} />;
       default:
         return <MainText config={config} />;
     }
@@ -249,11 +301,11 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
 
   return (
     <div 
-      className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-lg lg:rounded-2xl shadow-2xl relative"
+      className="w-full h-full flex flex-col items-center justify-center overflow-hidden relative shadow-inner"
       style={containerStyle}
     >
         <AnimatePresence mode="wait">
-          <div key={animationKey} className="flex flex-col items-center justify-center z-10 px-4 md:px-8 w-full">
+          <div key={animationKey} className="flex flex-col items-center justify-center z-10 px-4 md:px-12 w-full max-w-[1200px]">
             {renderContent()}
             
             {config.subText && (
@@ -263,9 +315,9 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
                 transition={{ delay: config.delay + (config.duration * 0.8), duration: 0.8 }}
                 style={{ 
                   color: config.accentColor,
-                  fontSize: 'clamp(0.875rem, 4vw, 1.5rem)' 
+                  fontSize: 'clamp(1rem, 5vw, 2rem)' 
                 }}
-                className="mt-4 font-light text-center tracking-wide"
+                className="mt-6 font-light text-center tracking-wide"
               >
                 {config.subText}
               </motion.p>

@@ -37,24 +37,25 @@ export default function Intro() {
           initial={{ 
             strokeDasharray: 1000, 
             strokeDashoffset: 1000, 
-            fillOpacity: 0,
-            stroke: '${config.textColor}',
-            strokeWidth: 2
+            fillOpacity: 0
           }}
           animate={{ 
             strokeDashoffset: 0,
-            fillOpacity: 1,
-            transition: {
-              strokeDashoffset: { duration: ${config.duration * 1.5}, ease: "easeInOut", delay: ${config.delay} },
-              fillOpacity: { duration: 0.8, ease: "easeOut", delay: ${config.delay + config.duration} }
-            }
+            fillOpacity: 1
+          }}
+          transition={{ 
+            duration: ${config.duration}, 
+            delay: ${config.delay},
+            ease: "easeInOut"
           }}
           style={{ 
             fontSize: '${config.fontSize}px', 
             letterSpacing: '${config.letterSpacing}px',
             fontFamily: '${config.fontFamily || 'inherit'}',
             fontWeight: 'bold',
-            fill: '${config.textColor}'
+            fill: '${config.textColor}',
+            stroke: '${config.textColor}',
+            strokeWidth: ${config.strokeWidth || 1}
           }}
         >
           ${config.text}
@@ -64,8 +65,60 @@ export default function Intro() {
       <motion.p 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: ${config.delay + config.duration * 1.5}, duration: 0.8 }}
+        transition={{ delay: ${config.delay + config.duration}, duration: 0.8 }}
         style={{ color: '${config.accentColor}', marginTop: '1.5rem', fontSize: '1.5rem', fontWeight: 300 }}
+      >
+        ${config.subText}
+      </motion.p>
+    </div>
+  );
+}
+`;
+    }
+
+    // TEXT STROKE GENERATOR (REACT)
+    if (config.type === AnimationType.TEXT_STROKE) {
+      return `${commonImports}
+
+export default function Intro() {
+  ${containerStyle}
+  
+  return (
+    <div style={containerStyle}>
+      <svg width="100%" height="250" viewBox="0 0 800 250" style={{ overflow: 'visible' }}>
+        <motion.text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          initial={{ fill: "transparent", strokeDashoffset: 1000, strokeDasharray: 1000 }}
+          animate={{ 
+            fill: '${config.textColor}',
+            strokeDashoffset: 0,
+          }}
+          transition={{ 
+            duration: ${config.duration}, 
+            delay: ${config.delay},
+            ease: "easeInOut",
+            fill: { delay: ${config.delay + config.duration * 0.8}, duration: 0.5 }
+          }}
+          style={{ 
+            fontSize: '${config.fontSize}px', 
+            letterSpacing: '${config.letterSpacing}px',
+            fontFamily: '${config.fontFamily || 'inherit'}',
+            fontWeight: 'bold',
+            stroke: '${config.accentColor}',
+            strokeWidth: ${config.strokeWidth || 2}
+          }}
+        >
+          ${config.text}
+        </motion.text>
+      </svg>
+      <motion.p 
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: ${config.delay + config.duration}, duration: 0.8 }}
+        style={{ color: '${config.accentColor}', marginTop: '1.5rem', fontSize: '1.5rem', fontWeight: 300, textAlign: 'center' }}
       >
         ${config.subText}
       </motion.p>
@@ -76,7 +129,7 @@ export default function Intro() {
 
     // MORPH GENERATOR (REACT)
     if (config.type === AnimationType.MORPH) {
-      const iconPath = "circle"; // Simplified for generator
+      const isHorizontal = config.iconPosition === 'left' || config.iconPosition === 'right';
       return `${commonImports}
 
 const ICONS = {
@@ -84,53 +137,78 @@ const ICONS = {
   square: { path: "M 25,25 L 175,25 L 175,175 L 25,175 Z", viewBox: "0 0 200 200" },
   triangle: { path: "M 100,25 L 175,175 L 25,175 Z", viewBox: "0 0 200 200" },
   star: { path: "M 100,10 L 123,80 L 198,80 L 138,125 L 160,195 L 100,150 L 40,195 L 62,125 L 2,80 L 77,80 Z", viewBox: "0 0 200 200" },
-  heart: { path: "M 100,50 C 100,20 150,20 150,50 C 150,110 100,150 100,180 C 100,150 50,110 50,50 C 50,20 100,20 100,50 Z", viewBox: "0 0 200 200" }
+  heart: { path: "M 100,50 C 100,20 150,20 150,50 C 150,110 100,150 100,180 C 100,150 50,110 50,50 C 50,20 100,20 100,50 Z", viewBox: "0 0 200 200" },
+  rocket: { path: "M100 15L75 60L75 140L100 185L125 140L125 60L100 15ZM75 100L40 140L40 170L75 140ZM125 100L160 140L160 170L125 140Z", viewBox: "0 0 200 200" }
 };
 
 export default function Intro() {
-  ${containerStyle}
-  const icon = ICONS.${config.iconId || 'circle'};
+  const containerStyle = {
+    backgroundColor: '${config.backgroundColor}',
+    display: 'flex',
+    flexDirection: ${isHorizontal ? "'row'" : "'column'"},
+    gap: '${config.itemSpacing || 20}px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    width: '100%',
+    color: '${config.textColor}',
+    fontFamily: '${config.fontFamily || 'sans-serif'}',
+    overflow: 'hidden'
+  };
+
+  const icon = ICONS.${config.iconId || 'rocket'};
   const target = ICONS.${config.morphIconId || 'star'};
+  const iconSize = ${config.fontSize * 1.5};
+
+  const IconElement = (
+    <svg width={iconSize} height={iconSize} viewBox={icon.viewBox} style={{ overflow: 'visible' }}>
+      <motion.path
+        d={icon.path}
+        initial={{ d: icon.path, fill: '${config.iconColor || config.textColor}', opacity: 0 }}
+        animate={{ 
+          d: [icon.path, target.path, icon.path],
+          fill: ['${config.iconColor || config.textColor}', '${config.accentColor}', '${config.iconColor || config.textColor}'],
+          opacity: 1
+        }}
+        transition={{
+          duration: ${config.duration * 2},
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut",
+          delay: ${config.delay}
+        }}
+        stroke="${config.accentColor}"
+        strokeWidth={${config.strokeWidth ? config.strokeWidth * 0.5 : 0}}
+      />
+    </svg>
+  );
 
   return (
     <div style={containerStyle}>
-      <svg width="${config.fontSize * 1.5}" height="${config.fontSize * 1.5}" viewBox={icon.viewBox} style={{ overflow: 'visible', marginBottom: '2rem' }}>
-        <motion.path
-          d={icon.path}
-          initial={{ d: icon.path, fill: '${config.textColor}', opacity: 0 }}
-          animate={{ 
-            d: [icon.path, target.path, icon.path],
-            fill: ['${config.textColor}', '${config.accentColor}', '${config.textColor}'],
-            opacity: 1
-          }}
-          transition={{
-            duration: ${config.duration * 2},
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut",
-            delay: ${config.delay}
-          }}
-        />
-      </svg>
-      <motion.h1
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: ${config.delay + 0.5}, duration: ${config.duration} }}
-        style={{ fontSize: '${config.fontSize}px', letterSpacing: '${config.letterSpacing}px', fontWeight: 'bold' }}
-      >
-        ${config.text}
-      </motion.h1>
-      <motion.p 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: ${config.delay + 1}, duration: 0.8 }}
-        style={{ color: '${config.accentColor}', marginTop: '1rem', fontSize: '1.25rem', fontWeight: 300 }}
-      >
-        ${config.subText}
-      </motion.p>
+      ${(config.iconPosition === 'top' || config.iconPosition === 'left') ? '{IconElement}' : ''}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: ${config.delay + 0.5}, duration: ${config.duration} }}
+          style={{ fontSize: '${config.fontSize}px', letterSpacing: '${config.letterSpacing}px', fontWeight: 'bold' }}
+        >
+          ${config.text}
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: ${config.delay + 1}, duration: 0.8 }}
+          style={{ color: '${config.accentColor}', marginTop: '1rem', fontSize: '1.25rem', fontWeight: 300 }}
+        >
+          ${config.subText}
+        </motion.p>
+      </div>
+      ${(config.iconPosition === 'bottom' || config.iconPosition === 'right') ? '{IconElement}' : ''}
     </div>
   );
-}`;
+}
+`;
     }
 
     // TYPEWRITER GENERATOR (REACT)

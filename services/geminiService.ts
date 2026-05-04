@@ -19,7 +19,11 @@ const animationSchema: Schema = {
     accentColor: { type: Type.STRING, description: "Hex color code for accents/subtext." },
     fontSize: { type: Type.NUMBER, description: "Font size in pixels (20 to 120)." },
     letterSpacing: { type: Type.NUMBER, description: "Letter spacing in pixels (-2 to 20)." },
-    easing: { type: Type.STRING, description: "CSS easing function name (e.g., easeOut, easeInOut)." }
+    easing: { type: Type.STRING, description: "CSS easing function name (e.g., easeOut, easeInOut)." },
+    iconId: { type: Type.STRING, description: "ID of the icon to use (rocket, shield, cpu, star, etc)." },
+    iconColor: { type: Type.STRING, description: "Hex color for the icon." },
+    iconPosition: { type: Type.STRING, enum: ['top', 'bottom', 'left', 'right'], description: "Position of the icon relative to text." },
+    strokeWidth: { type: Type.NUMBER, description: "Stroke width for the animation." }
   },
   required: ["text", "type", "backgroundColor", "textColor"],
 };
@@ -39,10 +43,15 @@ export const generateAnimationConfig = async (prompt: string): Promise<Partial<A
       Focus on aesthetics, contrast, and readability.
       
       Animation Types:
-      - 'svg_stroke': Classy, elegant, draws the text outline then fills it. Great for luxury or architectural sites.
-      - 'elastic_pop': Bouncy, fun, energetic. Great for startups and creative agencies.
+      - 'svg_stroke': Classy, elegant, draws the text outline then fills it.
+      - 'text_stroke': Modern animated outline focus.
+      - 'morph': Smoothly morphs one shape into another while showing the text.
+      - 'elastic_pop': Bouncy, fun, energetic.
       - 'glitch': Tech, cyber, edgy.
       - 'blur_reveal': Modern, clean, cinematic.
+      - 'typewriter': classic code/writer feel.
+
+      Available Icons: circle, square, triangle, star, heart, diamond, bolt, rocket, shield, cpu.
 
       If the user asks for a specific style (e.g., 'Cyberpunk', 'Minimalist', 'Corporate'), adjust colors and typography accordingly.
     `;

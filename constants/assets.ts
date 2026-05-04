@@ -47,6 +47,24 @@ export const ICONS: IconDefinition[] = [
     name: 'Bolt',
     path: 'M 120,0 L 40,110 L 90,110 L 80,200 L 160,90 L 110,90 Z',
     viewBox: '0 0 200 200'
+  },
+  {
+    id: 'rocket',
+    name: 'Rocket',
+    path: 'M100 15L75 60L75 140L100 185L125 140L125 60L100 15ZM75 100L40 140L40 170L75 140ZM125 100L160 140L160 170L125 140Z',
+    viewBox: '0 0 200 200'
+  },
+  {
+    id: 'shield',
+    name: 'Shield',
+    path: 'M100 20L30 50L30 110C30 160 100 185 100 185C100 185 170 160 170 110L170 50L100 20Z',
+    viewBox: '0 0 200 200'
+  },
+  {
+    id: 'cpu',
+    name: 'CPU',
+    path: 'M50 50H150V150H50V50ZM70 70V130H130V70H70ZM90 40V50M110 40V50M90 150V160M110 150V160M40 90H50M40 110H50M150 90H160M150 110H160',
+    viewBox: '0 0 200 200'
   }
 ];
 
