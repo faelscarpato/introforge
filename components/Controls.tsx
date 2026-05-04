@@ -56,7 +56,7 @@ const Controls: React.FC<ControlsProps> = ({
         </button>
       </div>
 
-      <div className="space-y-8 pb-10">
+      <div className="space-y-8 pb-32">
         {/* Content Section */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">

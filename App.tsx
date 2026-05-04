@@ -194,7 +194,7 @@ function App() {
             {/* Preview Component Container */}
             <motion.div 
               layout
-              className="relative w-full h-[400px] lg:h-auto max-w-5xl lg:aspect-video bg-black rounded-lg lg:rounded-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-slate-800 ring-1 ring-white/5"
+              className="relative w-full h-full lg:h-auto max-w-5xl lg:aspect-video bg-black rounded-lg lg:rounded-2xl shadow-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5"
             >
                 <Preview config={config} triggerKey={triggerKey} />
             </motion.div>
@@ -456,7 +456,7 @@ function App() {
 
               {/* Code Area */}
               <div className="flex-1 overflow-hidden flex flex-col relative">
-                <div className="flex-1 overflow-auto bg-black/40">
+                <div className="flex-1 overflow-auto bg-black/40 custom-scrollbar">
                   <SyntaxHighlighter 
                     language={exportFormat === ExportFormat.REACT_FRAMER ? 'tsx' : 'html'}
                     style={vscDarkPlus}
@@ -485,10 +485,10 @@ function App() {
                   <div className="flex gap-2">
                     <button 
                         onClick={handleDownload}
-                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all border border-slate-700"
+                        className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-primary-500/20 active:scale-95"
                     >
                         <Download size={16} />
-                        <span>Download</span>
+                        <span>Download Code</span>
                     </button>
                     <button 
                         onClick={copyToClipboard}

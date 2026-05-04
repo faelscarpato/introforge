@@ -83,16 +83,17 @@ const TypewriterText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
   const letters = useMemo(() => Array.from(config.text), [config.text]);
   
   return (
-    <h1 
+    <div 
+      className="flex flex-col items-center justify-center break-words"
       style={{ 
-        fontSize: `${config.fontSize}px`, 
+        fontSize: `clamp(18px, ${config.fontSize}px, 10vw)`, 
         letterSpacing: `${config.letterSpacing}px`,
         fontFamily: config.fontFamily || 'inherit'
       }}
-      className="font-bold leading-tight"
     >
-      {letters.map((letter, i) => (
-        <motion.span
+      <div className="flex flex-wrap justify-center">
+        {letters.map((letter, i) => (
+          <motion.span
           key={i}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -105,7 +106,8 @@ const TypewriterText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
           {letter}
         </motion.span>
       ))}
-    </h1>
+      </div>
+    </div>
   );
 };
 
@@ -231,12 +233,12 @@ const MorphAnimation: React.FC<{ config: AnimationConfig }> = ({ config }) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: config.delay + 0.5, duration: config.duration }}
           style={{ 
-            fontSize: `${config.fontSize}px`, 
+            fontSize: `clamp(20px, ${config.fontSize}px, 12vw)`, 
             letterSpacing: `${config.letterSpacing}px`,
             fontFamily: config.fontFamily || 'inherit',
             color: config.textColor
           }}
-          className="font-bold leading-tight text-center"
+          className="font-bold leading-tight text-center break-words max-w-full"
         >
           {config.text}
         </motion.h1>
@@ -256,11 +258,11 @@ const MainText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
       initial="hidden"
       animate="visible"
       style={{ 
-        fontSize: `${config.fontSize}px`, 
+        fontSize: `clamp(20px, ${config.fontSize}px, 12vw)`, 
         letterSpacing: `${config.letterSpacing}px`,
         fontFamily: config.fontFamily || 'inherit'
       }}
-      className="font-bold leading-tight text-center"
+      className="font-bold leading-tight text-center break-words max-w-full"
     >
       {config.text}
     </motion.h1>
