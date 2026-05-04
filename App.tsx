@@ -194,7 +194,7 @@ function App() {
             {/* Preview Component Container */}
             <motion.div 
               layout
-              className="relative w-full h-full lg:h-auto max-w-5xl lg:aspect-video bg-black rounded-lg lg:rounded-2xl shadow-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5"
+              className="relative w-full h-[450px] lg:h-auto max-w-5xl lg:aspect-video bg-black rounded-lg lg:rounded-2xl shadow-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5"
             >
                 <Preview config={config} triggerKey={triggerKey} />
             </motion.div>
@@ -435,9 +435,9 @@ function App() {
               </button>
             </div>
 
-            <div className="lg:flex flex-1 overflow-hidden">
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
               {/* Sidebar Tabs */}
-              <div className="w-full lg:w-56 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-800 p-2 flex lg:flex-col gap-1">
+              <div className="w-full lg:w-56 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-800 p-2 flex lg:flex-col gap-1 shrink-0">
                 <button 
                     onClick={() => handleFormatChange(ExportFormat.REACT_FRAMER)}
                     className={`flex-1 lg:flex-initial flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${exportFormat === ExportFormat.REACT_FRAMER ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}
@@ -455,7 +455,7 @@ function App() {
               </div>
 
               {/* Code Area */}
-              <div className="flex-1 overflow-hidden flex flex-col relative">
+              <div className="flex-1 overflow-hidden flex flex-col relative min-h-0">
                 <div className="flex-1 overflow-auto bg-black/40 custom-scrollbar">
                   <SyntaxHighlighter 
                     language={exportFormat === ExportFormat.REACT_FRAMER ? 'tsx' : 'html'}
@@ -474,15 +474,15 @@ function App() {
                 </div>
 
                 {/* Status Bar */}
-                <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex flex-wrap gap-4 justify-between items-center">
-                  <div className="text-[11px] font-mono text-slate-500 flex items-center gap-2">
+                <div className="px-4 py-3 lg:px-6 lg:py-4 border-t border-slate-800 bg-slate-900/50 flex flex-wrap gap-4 justify-between items-center shrink-0">
+                  <div className="text-[10px] lg:text-[11px] font-mono text-slate-500 flex items-center gap-2">
                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                      {exportFormat === ExportFormat.REACT_FRAMER 
                         ? "npm i framer-motion" 
                         : "No dependencies required"}
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto justify-between sm:justify-end">
                     <button 
                         onClick={handleDownload}
                         className="px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-primary-500/20 active:scale-95"
