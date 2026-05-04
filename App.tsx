@@ -91,9 +91,10 @@ function App() {
     const blob = new Blob([generatedCode], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+    const fileName = (projectName || config.text || 'animation').toLowerCase().replace(/\s+/g, '-');
     const extension = exportFormat === ExportFormat.REACT_FRAMER ? 'tsx' : 'html';
     link.href = url;
-    link.download = `introforge-animation.${extension}`;
+    link.download = `${fileName}.${extension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -183,9 +184,9 @@ function App() {
         </header>
 
         {/* Canvas Area */}
-        <div className="flex-1 p-4 lg:p-12 pt-20 lg:pt-28 pb-4 lg:pb-12 flex items-center justify-center bg-[#0d1117] relative overflow-hidden">
+        <div className="flex-1 p-3 lg:p-12 pt-20 lg:pt-28 pb-4 lg:pb-12 flex items-center justify-center bg-[#0d1117] relative overflow-hidden">
             {/* Ambient Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] lg:w-[500px] h-[300px] lg:h-[500px] bg-primary-500/10 blur-[100px] lg:blur-[120px] rounded-full pointer-events-none"></div>
             
             {/* Grid Pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
@@ -193,7 +194,7 @@ function App() {
             {/* Preview Component Container */}
             <motion.div 
               layout
-              className="relative w-full max-w-5xl aspect-video bg-black rounded-lg lg:rounded-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-slate-800 ring-1 ring-white/5"
+              className="relative w-full h-[400px] lg:h-auto max-w-5xl lg:aspect-video bg-black rounded-lg lg:rounded-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-slate-800 ring-1 ring-white/5"
             >
                 <Preview config={config} triggerKey={triggerKey} />
             </motion.div>
@@ -276,6 +277,87 @@ function App() {
         )}
       </AnimatePresence>
 
+      {/* Save Project Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowSaveModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              <X size={20} />
+            </button>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Save size={20} className="text-primary-500" /> Save Project
+            </h2>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-400">Project Name</label>
+                <input 
+                  type="text" 
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="e.g. My Awesome Intro"
+                  className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                  autoFocus
+                />
+              </div>
+              <button 
+                onClick={handleSaveProject}
+                disabled={!projectName.trim()}
+                className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-50 text-white py-3 rounded-lg font-bold transition-colors"
+              >
+                Confirm Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History / My Projects Modal */}
+      {showProjects && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-3xl w-full max-w-2xl flex flex-col max-h-[80vh] overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-900/50">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <History size={20} className="text-primary-500" /> My Projects
+              </h2>
+              <button onClick={() => setShowProjects(false)} className="text-slate-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+              {projects.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+                  <History size={48} className="mb-4 opacity-20" />
+                  <p>No saved projects yet.</p>
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {projects.sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
+                    <div 
+                      key={p.id}
+                      className="group bg-slate-800/50 border border-slate-700 hover:border-primary-500/50 hover:bg-slate-800 rounded-xl p-4 flex items-center justify-between transition-all"
+                    >
+                      <div className="flex-1 cursor-pointer" onClick={() => handleLoadProject(p)}>
+                        <h3 className="font-bold text-white group-hover:text-primary-400 transition-colors">{p.name}</h3>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Last edited: {new Date(p.updatedAt).toLocaleDateString()} at {new Date(p.updatedAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteProject(p.id)}
+                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                        title="Delete Project"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       {/* AI Prompt Modal */}
       {showAIPrompt && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
