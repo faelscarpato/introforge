@@ -6,7 +6,8 @@ export enum AnimationType {
   BLUR_REVEAL = 'blur_reveal',
   Glitch = 'glitch',
   SVG_STROKE = 'svg_stroke',
-  ELASTIC_POP = 'elastic_pop'
+  ELASTIC_POP = 'elastic_pop',
+  MORPH = 'morph'
 }
 
 export enum ExportFormat {
@@ -26,6 +27,9 @@ export interface AnimationConfig {
   fontSize: number;
   letterSpacing: number;
   easing: string;
+  fontFamily?: string;
+  iconId?: string;
+  morphIconId?: string;
 }
 
 export interface GeneratedCode {

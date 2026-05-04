@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimationConfig, AnimationType } from '../types';
+import { ICONS } from '../constants/assets';
 
 interface PreviewProps {
   config: AnimationConfig;
@@ -85,7 +86,8 @@ const TypewriterText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
     <h1 
       style={{ 
         fontSize: `${config.fontSize}px`, 
-        letterSpacing: `${config.letterSpacing}px` 
+        letterSpacing: `${config.letterSpacing}px`,
+        fontFamily: config.fontFamily || 'inherit'
       }}
       className="font-bold leading-tight"
     >
@@ -109,7 +111,7 @@ const TypewriterText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
 
 const SvgStrokeText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
   return (
-    <svg width="100%" height="200px" viewBox="0 0 800 200" className="overflow-visible">
+    <svg width="100%" height="250px" viewBox="0 0 800 250" className="overflow-visible">
       <motion.text
         x="50%"
         y="50%"
@@ -134,7 +136,7 @@ const SvgStrokeText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
         style={{ 
           fontSize: `${config.fontSize}px`, 
           letterSpacing: `${config.letterSpacing}px`,
-          fontFamily: 'inherit',
+          fontFamily: config.fontFamily || 'inherit',
           fontWeight: 'bold',
           fill: config.textColor,
           stroke: config.textColor // Ensure stroke color updates live
@@ -143,6 +145,55 @@ const SvgStrokeText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
         {config.text}
       </motion.text>
     </svg>
+  );
+};
+
+const MorphAnimation: React.FC<{ config: AnimationConfig }> = ({ config }) => {
+  const icon = ICONS.find(i => i.id === config.iconId) || ICONS[0];
+  const targetIcon = ICONS.find(i => i.id === config.morphIconId) || ICONS[1];
+
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="flex items-center justify-center mb-8">
+        <svg 
+          width={config.fontSize * 1.5} 
+          height={config.fontSize * 1.5} 
+          viewBox={icon.viewBox} 
+          className="overflow-visible"
+        >
+          <motion.path
+            d={icon.path}
+            initial={{ d: icon.path, fill: config.textColor, opacity: 0 }}
+            animate={{ 
+              d: [icon.path, targetIcon.path, icon.path],
+              fill: [config.textColor, config.accentColor, config.textColor],
+              opacity: 1
+            }}
+            transition={{
+              duration: config.duration * 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+              ease: "easeInOut",
+              delay: config.delay
+            }}
+          />
+        </svg>
+      </div>
+      <motion.h1
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: config.delay + 0.5, duration: config.duration }}
+        style={{ 
+          fontSize: `${config.fontSize}px`, 
+          letterSpacing: `${config.letterSpacing}px`,
+          fontFamily: config.fontFamily || 'inherit',
+          color: config.textColor
+        }}
+        className="font-bold leading-tight text-center"
+      >
+        {config.text}
+      </motion.h1>
+    </div>
   );
 };
 
@@ -156,7 +207,8 @@ const MainText: React.FC<{ config: AnimationConfig }> = ({ config }) => {
       animate="visible"
       style={{ 
         fontSize: `${config.fontSize}px`, 
-        letterSpacing: `${config.letterSpacing}px` 
+        letterSpacing: `${config.letterSpacing}px`,
+        fontFamily: config.fontFamily || 'inherit'
       }}
       className="font-bold leading-tight text-center"
     >
@@ -179,6 +231,7 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
   const containerStyle: React.CSSProperties = {
     backgroundColor: config.backgroundColor,
     color: config.textColor,
+    fontFamily: config.fontFamily || 'inherit'
   };
 
   const renderContent = () => {
@@ -187,6 +240,8 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
         return <TypewriterText config={config} />;
       case AnimationType.SVG_STROKE:
         return <SvgStrokeText config={config} />;
+      case AnimationType.MORPH:
+        return <MorphAnimation config={config} />;
       default:
         return <MainText config={config} />;
     }

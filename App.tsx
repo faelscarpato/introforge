@@ -20,7 +20,10 @@ const INITIAL_CONFIG: AnimationConfig = {
   accentColor: '#38bdf8',
   fontSize: 72,
   letterSpacing: 2,
-  easing: 'easeInOut'
+  easing: 'easeInOut',
+  fontFamily: '"Inter", sans-serif',
+  iconId: 'circle',
+  morphIconId: 'star'
 };
 
 function App() {

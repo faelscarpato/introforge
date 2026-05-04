@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnimationConfig, AnimationType } from '../types';
-import { Play, Code, Wand2, Download, Sparkles } from 'lucide-react';
+import { Play, Code, Wand2, Download, Sparkles, Shapes, Type } from 'lucide-react';
+import { FONTS, ICONS } from '../constants/assets';
 
 interface ControlsProps {
   config: AnimationConfig;
@@ -75,10 +76,74 @@ const Controls: React.FC<ControlsProps> = ({
                 placeholder="Subtitle"
               />
             </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-medium text-slate-400 ml-1">Font Family</label>
+              <div className="relative group">
+                <select 
+                  value={config.fontFamily}
+                  onChange={(e) => handleChange('fontFamily', e.target.value)}
+                  className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-primary-500/50 transition-all font-sans"
+                >
+                  {FONTS.map((font) => (
+                    <option key={font.value} value={font.value} style={{ fontFamily: font.value }} className="bg-slate-900">{font.name}</option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                   <Type size={14} />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Animation Settings */}
+        {/* Morphing Options (Conditional) */}
+        {config.type === AnimationType.MORPH && (
+          <section className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+             <div className="flex items-center gap-2 px-1">
+              <span className="w-4 h-[2px] bg-purple-500 rounded-full"></span>
+              <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Morph Shapes</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-slate-400 ml-1">Initial Shape</label>
+                <div className="relative">
+                  <select 
+                    value={config.iconId}
+                    onChange={(e) => handleChange('iconId', e.target.value)}
+                    className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-purple-500/50 transition-all font-mono"
+                  >
+                    {ICONS.map((icon) => (
+                      <option key={icon.id} value={icon.id} className="bg-slate-900">{icon.name}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Shapes size={12} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-slate-400 ml-1">Target Shape</label>
+                <div className="relative">
+                  <select 
+                    value={config.morphIconId}
+                    onChange={(e) => handleChange('morphIconId', e.target.value)}
+                    className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-purple-500/50 transition-all font-mono"
+                  >
+                    {ICONS.map((icon) => (
+                      <option key={icon.id} value={icon.id} className="bg-slate-900">{icon.name}</option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Shapes size={12} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <span className="w-4 h-[2px] bg-primary-500 rounded-full"></span>

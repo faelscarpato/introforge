@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';`;
     height: '100vh',
     width: '100%',
     color: '${config.textColor}',
+    fontFamily: '${config.fontFamily || 'sans-serif'}',
     overflow: 'hidden'
   };`;
 
@@ -27,7 +28,7 @@ export default function Intro() {
 
   return (
     <div style={containerStyle}>
-      <svg width="100%" height="200" viewBox="0 0 800 200" style={{ overflow: 'visible' }}>
+      <svg width="100%" height="250" viewBox="0 0 800 250" style={{ overflow: 'visible' }}>
         <motion.text
           x="50%"
           y="50%"
@@ -51,7 +52,7 @@ export default function Intro() {
           style={{ 
             fontSize: '${config.fontSize}px', 
             letterSpacing: '${config.letterSpacing}px',
-            fontFamily: 'sans-serif',
+            fontFamily: '${config.fontFamily || 'inherit'}',
             fontWeight: 'bold',
             fill: '${config.textColor}'
           }}
@@ -64,7 +65,66 @@ export default function Intro() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: ${config.delay + config.duration * 1.5}, duration: 0.8 }}
-        style={{ color: '${config.accentColor}', marginTop: '1rem', fontSize: '1.5rem' }}
+        style={{ color: '${config.accentColor}', marginTop: '1.5rem', fontSize: '1.5rem', fontWeight: 300 }}
+      >
+        ${config.subText}
+      </motion.p>
+    </div>
+  );
+}`;
+    }
+
+    // MORPH GENERATOR (REACT)
+    if (config.type === AnimationType.MORPH) {
+      const iconPath = "circle"; // Simplified for generator
+      return `${commonImports}
+
+const ICONS = {
+  circle: { path: "M 100, 100 m -75, 0 a 75,75 0 1,0 150,0 a 75,75 0 1,0 -150,0", viewBox: "0 0 200 200" },
+  square: { path: "M 25,25 L 175,25 L 175,175 L 25,175 Z", viewBox: "0 0 200 200" },
+  triangle: { path: "M 100,25 L 175,175 L 25,175 Z", viewBox: "0 0 200 200" },
+  star: { path: "M 100,10 L 123,80 L 198,80 L 138,125 L 160,195 L 100,150 L 40,195 L 62,125 L 2,80 L 77,80 Z", viewBox: "0 0 200 200" },
+  heart: { path: "M 100,50 C 100,20 150,20 150,50 C 150,110 100,150 100,180 C 100,150 50,110 50,50 C 50,20 100,20 100,50 Z", viewBox: "0 0 200 200" }
+};
+
+export default function Intro() {
+  ${containerStyle}
+  const icon = ICONS.${config.iconId || 'circle'};
+  const target = ICONS.${config.morphIconId || 'star'};
+
+  return (
+    <div style={containerStyle}>
+      <svg width="${config.fontSize * 1.5}" height="${config.fontSize * 1.5}" viewBox={icon.viewBox} style={{ overflow: 'visible', marginBottom: '2rem' }}>
+        <motion.path
+          d={icon.path}
+          initial={{ d: icon.path, fill: '${config.textColor}', opacity: 0 }}
+          animate={{ 
+            d: [icon.path, target.path, icon.path],
+            fill: ['${config.textColor}', '${config.accentColor}', '${config.textColor}'],
+            opacity: 1
+          }}
+          transition={{
+            duration: ${config.duration * 2},
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+            delay: ${config.delay}
+          }}
+        />
+      </svg>
+      <motion.h1
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: ${config.delay + 0.5}, duration: ${config.duration} }}
+        style={{ fontSize: '${config.fontSize}px', letterSpacing: '${config.letterSpacing}px', fontWeight: 'bold' }}
+      >
+        ${config.text}
+      </motion.h1>
+      <motion.p 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: ${config.delay + 1}, duration: 0.8 }}
+        style={{ color: '${config.accentColor}', marginTop: '1rem', fontSize: '1.25rem', fontWeight: 300 }}
       >
         ${config.subText}
       </motion.p>
@@ -84,6 +144,7 @@ export default function Intro() {
     fontSize: '${config.fontSize}px',
     letterSpacing: '${config.letterSpacing}px',
     fontWeight: 'bold',
+    fontFamily: '${config.fontFamily || 'inherit'}'
   };
   
   const text = "${config.text}";
@@ -169,6 +230,7 @@ export default function Intro() {
     fontSize: '${config.fontSize}px',
     letterSpacing: '${config.letterSpacing}px',
     fontWeight: 'bold',
+    fontFamily: '${config.fontFamily || 'inherit'}'
   };
 
   ${variantsObj}
@@ -302,7 +364,7 @@ export default function Intro() {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: sans-serif;
+    font-family: ${config.fontFamily || 'sans-serif'};
     overflow: hidden;
   }
 
