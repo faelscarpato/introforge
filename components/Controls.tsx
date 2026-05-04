@@ -1,6 +1,6 @@
 import React from 'react';
 import { AnimationConfig, AnimationType } from '../types';
-import { Play, Code, Wand2, Download, Sparkles, Shapes, Type } from 'lucide-react';
+import { Play, Code, Wand2, Download, Sparkles, Shapes, Type, Save } from 'lucide-react';
 import { FONTS, ICONS } from '../constants/assets';
 
 interface ControlsProps {
@@ -9,6 +9,7 @@ interface ControlsProps {
   onReplay: () => void;
   onExport: () => void;
   onGenerateAI: () => void;
+  onSave: () => void;
   isGenerating: boolean;
 }
 
@@ -18,6 +19,7 @@ const Controls: React.FC<ControlsProps> = ({
   onReplay, 
   onExport, 
   onGenerateAI, 
+  onSave,
   isGenerating 
 }) => {
 
@@ -29,20 +31,28 @@ const Controls: React.FC<ControlsProps> = ({
     <div className="w-full h-full bg-[#0d1117] lg:bg-slate-900 border-l lg:border-slate-800 p-5 lg:p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar">
       
       {/* Header Actions */}
-      <div className="flex gap-2 shrink-0">
-        <button 
-          onClick={onReplay}
-          className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all active:scale-[0.98] border border-slate-700"
-        >
-          <Play size={16} className="fill-current" /> Replay
-        </button>
+      <div className="flex flex-col gap-2 shrink-0">
+        <div className="flex gap-2">
+          <button 
+            onClick={onReplay}
+            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all active:scale-[0.98] border border-slate-700"
+          >
+            <Play size={16} className="fill-current" /> Replay
+          </button>
+          <button 
+              onClick={onSave}
+              className="flex-1 bg-slate-800 hover:bg-slate-700 text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all active:scale-[0.98] border border-slate-700"
+          >
+              <Save size={16} /> Save
+          </button>
+        </div>
         <button 
             onClick={onGenerateAI}
             disabled={isGenerating}
-            className={`flex-[1.2] ${isGenerating ? 'bg-purple-900 border-purple-700' : 'bg-purple-600 hover:bg-purple-500 border-purple-500'} text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all active:scale-[0.98] border shadow-lg shadow-purple-900/20`}
+            className={`w-full ${isGenerating ? 'bg-purple-900 border-purple-700' : 'bg-purple-600 hover:bg-purple-500 border-purple-500'} text-white py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all active:scale-[0.98] border shadow-lg shadow-purple-900/20`}
         >
             <Sparkles size={16} className={isGenerating ? "animate-pulse" : ""} /> 
-            {isGenerating ? 'Refining...' : 'AI Remix'}
+            {isGenerating ? 'Refining...' : 'AI Remix Generator'}
         </button>
       </div>
 

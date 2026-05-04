@@ -4,7 +4,8 @@ import Controls from './components/Controls';
 import Preview from './components/Preview';
 import { generateCode } from './utils/codeGenerator';
 import { generateAnimationConfig } from './services/geminiService';
-import { X, Copy, Check, Sparkles, AlertTriangle, Code, Menu, Settings2 } from 'lucide-react';
+import { persistenceService, SavedProject } from './services/persistenceService';
+import { X, Copy, Check, Sparkles, AlertTriangle, Code, Menu, Settings2, Download, Save, History, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -42,6 +43,15 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showMobileControls, setShowMobileControls] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
+  const [projects, setProjects] = useState<SavedProject[]>([]);
+  const [projectName, setProjectName] = useState('');
+  const [showSaveModal, setShowSaveModal] = useState(false);
+
+  // Load projects on mount
+  useEffect(() => {
+    setProjects(persistenceService.getProjects());
+  }, []);
 
   // Close mobile controls when window resizes to desktop
   useEffect(() => {
@@ -75,6 +85,38 @@ function App() {
     navigator.clipboard.writeText(generatedCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([generatedCode], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const extension = exportFormat === ExportFormat.REACT_FRAMER ? 'tsx' : 'html';
+    link.href = url;
+    link.download = `introforge-animation.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSaveProject = () => {
+    if (!projectName.trim()) return;
+    persistenceService.saveProject(config, projectName);
+    setProjects(persistenceService.getProjects());
+    setShowSaveModal(false);
+    setProjectName('');
+  };
+
+  const handleDeleteProject = (id: string) => {
+    persistenceService.deleteProject(id);
+    setProjects(persistenceService.getProjects());
+  };
+
+  const handleLoadProject = (saved: SavedProject) => {
+    setConfig(saved.config);
+    setTriggerKey(prev => prev + 1);
+    setShowProjects(false);
   };
 
   const handleGenerateAI = async () => {
@@ -129,6 +171,14 @@ function App() {
             >
               <Menu size={24} />
             </button>
+            
+            <button 
+              onClick={() => setShowProjects(true)}
+              className="p-2 bg-slate-900/80 backdrop-blur-md rounded-lg border border-white/10 text-white hover:bg-slate-800 transition-colors"
+              title="Saved Projects"
+            >
+              <History size={24} />
+            </button>
           </div>
         </header>
 
@@ -176,6 +226,7 @@ function App() {
           onReplay={handleReplay}
           onExport={handleExport}
           onGenerateAI={() => setShowAIPrompt(true)}
+          onSave={() => setShowSaveModal(true)}
           isGenerating={isGenerating}
         />
       </aside>
@@ -213,6 +264,10 @@ function App() {
                 onGenerateAI={() => {
                   setShowMobileControls(false);
                   setShowAIPrompt(true);
+                }}
+                onSave={() => {
+                   setShowMobileControls(false);
+                   setShowSaveModal(true);
                 }}
                 isGenerating={isGenerating}
               />
@@ -337,7 +392,7 @@ function App() {
                 </div>
 
                 {/* Status Bar */}
-                <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex justify-between items-center">
+                <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex flex-wrap gap-4 justify-between items-center">
                   <div className="text-[11px] font-mono text-slate-500 flex items-center gap-2">
                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
                      {exportFormat === ExportFormat.REACT_FRAMER 
@@ -345,22 +400,31 @@ function App() {
                         : "No dependencies required"}
                   </div>
                   
-                  <button 
-                      onClick={copyToClipboard}
-                      className={`px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 ${copied ? 'bg-green-600 text-white' : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-500/20'}`}
-                  >
-                      {copied ? (
-                        <>
-                          <Check size={16} /> 
-                          <span>Successfully Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={16} />
-                          <span>Copy to Clipboard</span>
-                        </>
-                      )}
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                        onClick={handleDownload}
+                        className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-all border border-slate-700"
+                    >
+                        <Download size={16} />
+                        <span>Download</span>
+                    </button>
+                    <button 
+                        onClick={copyToClipboard}
+                        className={`px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 ${copied ? 'bg-green-600 text-white' : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-500/20'}`}
+                    >
+                        {copied ? (
+                          <>
+                            <Check size={16} /> 
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={16} />
+                            <span>Copy Code</span>
+                          </>
+                        )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
