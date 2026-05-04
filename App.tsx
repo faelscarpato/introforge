@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { AnimationConfig, AnimationType, ExportFormat } from './types';
 import Controls from './components/Controls';
 import Preview from './components/Preview';
 import { generateCode } from './utils/codeGenerator';
 import { generateAnimationConfig } from './services/geminiService';
-import { X, Copy, Check, Sparkles, AlertTriangle, Code } from 'lucide-react';
+import { X, Copy, Check, Sparkles, AlertTriangle, Code, Menu, Settings2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const INITIAL_CONFIG: AnimationConfig = {
   text: 'INTRO FORGE',
@@ -31,6 +34,19 @@ function App() {
   const [exportFormat, setExportFormat] = useState<ExportFormat>(ExportFormat.REACT_FRAMER);
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showMobileControls, setShowMobileControls] = useState(false);
+
+  // Close mobile controls when window resizes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setShowMobileControls(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   const handleReplay = useCallback(() => {
     setTriggerKey(prev => prev + 1);
@@ -82,38 +98,71 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-primary-500/30">
+    <div className="flex flex-col lg:flex-row h-screen w-full bg-slate-950 text-slate-100 overflow-hidden font-sans selection:bg-primary-500/30">
       
       {/* Main Preview Area */}
-      <main className="flex-1 relative flex flex-col h-full">
+      <main className="flex-1 relative flex flex-col h-full overflow-hidden">
         {/* Top Bar */}
-        <header className="absolute top-0 left-0 w-full z-20 p-6 flex justify-between items-center pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto bg-slate-900/50 backdrop-blur-md p-2 rounded-lg border border-white/10">
+        <header className="absolute top-0 left-0 w-full z-20 p-4 lg:p-6 flex justify-between items-center">
+          <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur-md p-2 rounded-lg border border-white/10 shadow-xl">
             <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-purple-600 rounded-md flex items-center justify-center">
-              <span className="font-bold text-white">IF</span>
+              <span className="font-bold text-white text-sm">IF</span>
             </div>
-            <span className="font-bold tracking-tight text-lg">IntroForge</span>
+            <span className="font-bold tracking-tight text-base lg:text-lg">IntroForge</span>
           </div>
           
-          <div className="pointer-events-auto bg-slate-900/50 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-xs text-slate-400">
-             v1.0 • React & Framer Motion
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:block bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[10px] uppercase tracking-widest text-slate-400">
+               Live Preview • v1.0
+            </div>
+            
+            <button 
+              onClick={() => setShowMobileControls(!showMobileControls)}
+              className="lg:hidden p-2 bg-slate-900/80 backdrop-blur-md rounded-lg border border-white/10 text-white hover:bg-slate-800 transition-colors"
+            >
+              <Menu size={24} />
+            </button>
           </div>
         </header>
 
-        {/* Canvas */}
-        <div className="flex-1 p-8 pt-24 pb-8 flex items-center justify-center bg-[#0d1117] relative">
+        {/* Canvas Area */}
+        <div className="flex-1 p-4 lg:p-12 pt-20 lg:pt-28 pb-4 lg:pb-12 flex items-center justify-center bg-[#0d1117] relative overflow-hidden">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+            
             {/* Grid Pattern */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
             
             {/* Preview Component Container */}
-            <div className="relative w-full max-w-5xl aspect-video bg-black rounded-xl shadow-2xl overflow-hidden border border-slate-800 ring-1 ring-white/5">
+            <motion.div 
+              layout
+              className="relative w-full max-w-5xl aspect-video bg-black rounded-lg lg:rounded-2xl shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden border border-slate-800 ring-1 ring-white/5"
+            >
                 <Preview config={config} triggerKey={triggerKey} />
-            </div>
+            </motion.div>
         </div>
+
+        {/* Quick Actions (Mobile Only) */}
+        {!showMobileControls && (
+          <div className="lg:hidden p-4 flex gap-2 bg-slate-900 border-t border-slate-800">
+             <button 
+                onClick={handleReplay}
+                className="flex-1 bg-slate-800 text-white py-3 rounded-xl font-bold text-sm"
+              >
+                Replay Text
+              </button>
+              <button 
+                onClick={() => setShowMobileControls(true)}
+                className="flex-1 bg-primary-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary-900/20"
+              >
+                Edit Config
+              </button>
+          </div>
+        )}
       </main>
 
-      {/* Right Sidebar Controls */}
-      <aside className="w-80 h-full flex-shrink-0 z-30 shadow-2xl">
+      {/* Sidebar Controls (Desktop) */}
+      <aside className="hidden lg:block w-[340px] h-full flex-shrink-0 z-30 ring-1 ring-white/5 shadow-2xl">
         <Controls 
           config={config} 
           onChange={setConfig} 
@@ -123,6 +172,47 @@ function App() {
           isGenerating={isGenerating}
         />
       </aside>
+
+      {/* Mobile Controls Drawer */}
+      <AnimatePresence>
+        {showMobileControls && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="lg:hidden fixed inset-0 z-[60] flex flex-col bg-slate-950"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900">
+              <h2 className="font-bold flex items-center gap-2">
+                <Settings2 size={18} className="text-primary-400" /> Settings
+              </h2>
+              <button 
+                onClick={() => setShowMobileControls(false)}
+                className="p-2 text-slate-400 hover:text-white"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <Controls 
+                config={config} 
+                onChange={setConfig} 
+                onReplay={handleReplay}
+                onExport={() => {
+                  setShowMobileControls(false);
+                  handleExport();
+                }}
+                onGenerateAI={() => {
+                  setShowMobileControls(false);
+                  setShowAIPrompt(true);
+                }}
+                isGenerating={isGenerating}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* AI Prompt Modal */}
       {showAIPrompt && (
@@ -180,51 +270,94 @@ function App() {
 
       {/* Code Export Modal */}
       {showCode && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
-            <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-slate-800/50 rounded-t-xl">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Code size={20} className="text-primary-500" /> Export Code
-              </h2>
-              <button onClick={() => setShowCode(false)} className="text-slate-400 hover:text-white">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-[#0d1117] border border-slate-800 rounded-2xl shadow-3xl w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden"
+          >
+            <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-slate-900/50">
+              <div className="flex flex-col">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Code size={20} className="text-primary-500" /> Export Your Intro
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">Ready to use in your web projects</p>
+              </div>
+              <button 
+                onClick={() => setShowCode(false)} 
+                className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/5 rounded-full transition-all"
+              >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-4 bg-slate-900 border-b border-slate-800 flex gap-4">
+            <div className="lg:flex flex-1 overflow-hidden">
+              {/* Sidebar Tabs */}
+              <div className="w-full lg:w-56 bg-slate-900/30 border-b lg:border-b-0 lg:border-r border-slate-800 p-2 flex lg:flex-col gap-1">
                 <button 
                     onClick={() => handleFormatChange(ExportFormat.REACT_FRAMER)}
-                    className={`pb-2 text-sm font-medium border-b-2 transition-colors ${exportFormat === ExportFormat.REACT_FRAMER ? 'border-primary-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                    className={`flex-1 lg:flex-initial flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${exportFormat === ExportFormat.REACT_FRAMER ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}
                 >
-                    React + Framer Motion
+                    <div className={`w-2 h-2 rounded-full ${exportFormat === ExportFormat.REACT_FRAMER ? 'bg-primary-500' : 'bg-slate-700'}`} />
+                    React + Framer
                 </button>
                 <button 
                     onClick={() => handleFormatChange(ExportFormat.HTML_CSS)}
-                    className={`pb-2 text-sm font-medium border-b-2 transition-colors ${exportFormat === ExportFormat.HTML_CSS ? 'border-primary-500 text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+                    className={`flex-1 lg:flex-initial flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${exportFormat === ExportFormat.HTML_CSS ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'}`}
                 >
-                    HTML / CSS
+                    <div className={`w-2 h-2 rounded-full ${exportFormat === ExportFormat.HTML_CSS ? 'bg-primary-500' : 'bg-slate-700'}`} />
+                    Pure HTML & CSS
                 </button>
-            </div>
+              </div>
 
-            <div className="flex-1 overflow-auto p-0 relative group">
-                <pre className="p-6 text-sm font-mono text-slate-300 bg-[#0d1117] min-h-full">
-                    <code>{generatedCode}</code>
-                </pre>
-                <button 
-                    onClick={copyToClipboard}
-                    className="absolute top-4 right-4 bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-md shadow-lg transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2"
-                >
-                    {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} />}
-                    {copied ? 'Copied!' : 'Copy'}
-                </button>
+              {/* Code Area */}
+              <div className="flex-1 overflow-hidden flex flex-col relative">
+                <div className="flex-1 overflow-auto bg-black/40">
+                  <SyntaxHighlighter 
+                    language={exportFormat === ExportFormat.REACT_FRAMER ? 'tsx' : 'html'}
+                    style={vscDarkPlus}
+                    customStyle={{
+                      margin: 0,
+                      padding: '1.5rem',
+                      fontSize: '0.85rem',
+                      lineHeight: '1.5',
+                      background: 'transparent',
+                      minHeight: '100%'
+                    }}
+                  >
+                    {generatedCode}
+                  </SyntaxHighlighter>
+                </div>
+
+                {/* Status Bar */}
+                <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/50 flex justify-between items-center">
+                  <div className="text-[11px] font-mono text-slate-500 flex items-center gap-2">
+                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                     {exportFormat === ExportFormat.REACT_FRAMER 
+                        ? "npm i framer-motion" 
+                        : "No dependencies required"}
+                  </div>
+                  
+                  <button 
+                      onClick={copyToClipboard}
+                      className={`px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 ${copied ? 'bg-green-600 text-white' : 'bg-primary-600 hover:bg-primary-500 text-white shadow-lg shadow-primary-500/20'}`}
+                  >
+                      {copied ? (
+                        <>
+                          <Check size={16} /> 
+                          <span>Successfully Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={16} />
+                          <span>Copy to Clipboard</span>
+                        </>
+                      )}
+                  </button>
+                </div>
+              </div>
             </div>
-            
-            <div className="p-4 bg-slate-800/50 text-xs text-slate-500 text-center rounded-b-xl">
-               {exportFormat === ExportFormat.REACT_FRAMER 
-                 ? "Requires: npm install framer-motion" 
-                 : "Copy and paste into your HTML file"}
-            </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

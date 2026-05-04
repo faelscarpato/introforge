@@ -1,5 +1,6 @@
 {
   "name": "IntroForge",
   "description": "A professional web intro animation generator. Design, preview, and export high-performance intro sequences for React and HTML/CSS websites using a visual editor or AI-powered generation.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }

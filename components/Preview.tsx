@@ -194,20 +194,23 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
 
   return (
     <div 
-      className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-lg shadow-2xl relative"
+      className="w-full h-full flex flex-col items-center justify-center overflow-hidden rounded-lg lg:rounded-2xl shadow-2xl relative"
       style={containerStyle}
     >
         <AnimatePresence mode="wait">
-          <div key={animationKey} className="flex flex-col items-center justify-center z-10 px-8 w-full">
+          <div key={animationKey} className="flex flex-col items-center justify-center z-10 px-4 md:px-8 w-full">
             {renderContent()}
             
             {config.subText && (
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: config.delay + (config.duration * 1.2), duration: 0.8 }}
-                style={{ color: config.accentColor }}
-                className="mt-4 text-xl md:text-2xl font-light text-center"
+                transition={{ delay: config.delay + (config.duration * 0.8), duration: 0.8 }}
+                style={{ 
+                  color: config.accentColor,
+                  fontSize: 'clamp(0.875rem, 4vw, 1.5rem)' 
+                }}
+                className="mt-4 font-light text-center tracking-wide"
               >
                 {config.subText}
               </motion.p>
@@ -216,9 +219,9 @@ const Preview: React.FC<PreviewProps> = ({ config, triggerKey }) => {
         </AnimatePresence>
 
         {/* Decorative background grid for visual depth */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none" 
+        <div className="absolute inset-0 opacity-[0.03] lg:opacity-[0.07] pointer-events-none" 
              style={{ 
-               backgroundImage: `radial-gradient(${config.accentColor} 1px, transparent 1px)`, 
+               backgroundImage: `radial-gradient(${config.accentColor} 1.5px, transparent 1.5px)`, 
                backgroundSize: '40px 40px' 
              }} 
         />
